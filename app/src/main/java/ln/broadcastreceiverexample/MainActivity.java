@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
 
     BroadcastReceiver broadcastReceiver;
     TextView textView;
-
+    Intent intent,intent1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.button_start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent();
+                intent = new Intent();
                 intent.setClass(MainActivity.this, MyService.class);
                 intent.setAction(MyService.ACTION_START);
                 startService(intent);
@@ -35,10 +35,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent();
-                intent.setClass(MainActivity.this, MyService.class);
-                intent.setAction(MyService.ACTION_STOP);
-                startService(intent);
+                intent1 = new Intent();
+                intent1.setClass(MainActivity.this, MyService.class);
+                intent1.setAction(MyService.ACTION_STOP);
+                startService(intent1);
             }
         });
     }
@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         unRegisterReceivers();
+        stopService(intent);
+        stopService(intent1);
     }
 
     private void unRegisterReceivers() {
