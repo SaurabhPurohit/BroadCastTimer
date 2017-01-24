@@ -13,15 +13,15 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity {
 
     BroadcastReceiver broadcastReceiver;
-    TextView textView;
-    Intent intent,intent1;
+    TextView textView, textContact;
+    Intent intent, intent1, intentFetch;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         textView = (TextView) findViewById(R.id.textView);
-
+        textContact = (TextView) findViewById(R.id.txt_contact);
         findViewById(R.id.button_start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -42,12 +42,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        /*findViewById(R.id.btn_contact).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btn_contact).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                intentFetch = new Intent();
+                intentFetch.setClass(MainActivity.this, MyService.class);
+                intentFetch.setAction(MyService.ACTION_FETCH);
+                startService(intentFetch);
             }
-        });*/
+        });
     }
 
     @Override
@@ -62,10 +65,17 @@ public class MainActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 String value = intent.getStringExtra(MyService.EXTRA_VALUE);
                 textView.setText(value);
+
+                String contacts = intent.getStringExtra(MyService.EXTRA_FETCH);
+                textContact.setText(contacts);
             }
         };
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(MyService.ACTION_BROADCAST);
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
+
+        IntentFilter intentFilterFetch = new IntentFilter();
+        intentFilterFetch.addAction(MyService.ACTION_FETCH);
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
     }
 
@@ -75,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         unRegisterReceivers();
         stopService(intent);
         stopService(intent1);
+        stopService(intentFetch);
     }
 
     private void unRegisterReceivers() {

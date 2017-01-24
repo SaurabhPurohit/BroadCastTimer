@@ -2,7 +2,10 @@ package ln.broadcastreceiverexample;
 
 import android.app.Service;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.IBinder;
+import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -14,10 +17,14 @@ public class MyService extends Service {
     private static final String TAG = "MyService";
     public static String ACTION_START = "Start";
     public static String ACTION_STOP = "Stop";
-
+    public static String ACTION_FETCH = "Fetch";
+    String contacts = "blank";
     public static String ACTION_BROADCAST = "Broadcast";
 
     public static String EXTRA_VALUE = "Value";
+    public static String EXTRA_FETCH = "FetchValue";
+
+    String test;
 
     Timer timer;
     TimerTask timerTask;
@@ -58,6 +65,11 @@ public class MyService extends Service {
         } else if (action.equals(ACTION_STOP)) {
             stopTimer();
         }
+        if (action.equals(ACTION_FETCH)) {
+            contacts = getContacts();
+            sendBroadcast(contacts);
+
+        }
         Log.d(TAG,"");
         return super.onStartCommand(intent, flags, startId);
     }
@@ -91,5 +103,31 @@ public class MyService extends Service {
         intent.setAction(ACTION_BROADCAST);
         intent.putExtra(EXTRA_VALUE, value);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+
+        Intent intentfetch = new Intent();
+        intentfetch.putExtra(EXTRA_FETCH, value);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intentfetch);
     }
+
+    private String getContacts() {
+        // Run query
+        Uri uri = ContactsContract.Data.CONTENT_URI;
+        String[] projection = new String[]{
+                ContactsContract.Contacts._ID,
+                ContactsContract.Contacts.DISPLAY_NAME,
+                ContactsContract.RawContacts.ACCOUNT_TYPE
+        };
+        String[] selectionArgs = null;
+        String sortOrder = ContactsContract.Contacts.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
+
+        //MainActivity.textContact.setText(test);
+        Cursor cursor = getContentResolver().query(uri, projection, null, selectionArgs, sortOrder);
+        if (cursor.moveToFirst()) {
+            test = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+        }
+        //return getContentResolver().query(uri, projection, null, selectionArgs, sortOrder).toString();
+        return test;
+    }
+
+
 }
