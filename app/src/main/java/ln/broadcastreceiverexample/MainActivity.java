@@ -41,6 +41,13 @@ public class MainActivity extends AppCompatActivity {
                 startService(intent1);
             }
         });
+
+        /*findViewById(R.id.btn_contact).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });*/
     }
 
     @Override
